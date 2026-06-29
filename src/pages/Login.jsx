@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
@@ -77,6 +77,14 @@ const Login = () => {
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
+
+        {/* NEW: This is the clickable link to take users to the Register page! */}
+        <p className="mt-6 text-center text-sm text-slate-600">
+          Don't have an account?{' '}
+          <Link to="/register" className="text-indigo-600 hover:text-indigo-700 font-medium">
+            Sign up
+          </Link>
+        </p>
       </div>
     </div>
   );
