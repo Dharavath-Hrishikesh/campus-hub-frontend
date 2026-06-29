@@ -1,82 +1,82 @@
-import { useState } from 'react';
-import toast from 'react-hot-toast';
+import React, { useState } from 'react';
 import api from '../api/axios';
+import toast from 'react-hot-toast';
 
-const CreateNoticeForm = ({ onSuccess }) => {
+const CreateNotice = ({ onNoticeCreated }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-
-    if (!title.trim() || !content.trim()) {
-      setError('Title and content are required.');
-      return;
+    
+    if (!title || !content) {
+      return toast.error('Please fill out all fields');
     }
 
     setLoading(true);
-
     try {
-      await api.post('/notices', { title, content });
-      toast.success('Notice posted successfully');
+      // Send the new notice to your backend
+      const response = await api.post('/notices', { title, content });
+      
+      toast.success('Notice published successfully!');
+      
+      // Clear the form
       setTitle('');
       setContent('');
-      onSuccess?.();
-    } catch (err) {
-      setError(
-        err.response?.data?.message || 'Failed to create notice. Try again.'
-      );
+      
+      // Instantly update the dashboard feed!
+      if (onNoticeCreated) {
+        onNoticeCreated(response.data);
+      }
+    } catch (error) {
+      console.error('Error creating notice:', error);
+      toast.error(error.response?.data?.message || 'Failed to publish notice');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-3 py-2">
-          {error}
+    <div className="bg-white p-6 rounded shadow-md border border-gray-200 mb-8">
+      <h3 className="text-xl font-bold mb-4">Post a New Notice</h3>
+      
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-gray-700 text-sm font-bold mb-2">Notice Title</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+            placeholder="E.g., Campus Library Closed Tomorrow"
+            required
+          />
         </div>
-      )}
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Title
-        </label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Notice title"
-        />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Content
-        </label>
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          rows={4}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-          placeholder="Write the notice details..."
-        />
-      </div>
-
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full bg-blue-600 text-white text-sm font-medium py-2.5 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {loading ? 'Posting...' : 'Post Notice'}
-      </button>
-    </form>
+        
+        <div>
+          <label className="block text-gray-700 text-sm font-bold mb-2">Message Content</label>
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded h-24 focus:outline-none focus:border-blue-500 resize-none"
+            placeholder="Provide the details here..."
+            required
+          ></textarea>
+        </div>
+        
+        <button
+          type="submit"
+          disabled={loading}
+          className={`w-full bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors ${
+            loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-700'
+          }`}
+        >
+          {loading ? 'Posting...' : 'Publish Notice'}
+        </button>
+      </form>
+    </div>
   );
 };
 
-export default CreateNoticeForm;
+export default CreateNotice;
