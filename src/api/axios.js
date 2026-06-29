@@ -1,7 +1,8 @@
 import axios from 'axios';
 
+// We tell Axios to look for a cloud URL first. If it can't find one, it falls back to your local server.
 const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
 });
 
 // Attach the JWT (if present) to every outgoing request
